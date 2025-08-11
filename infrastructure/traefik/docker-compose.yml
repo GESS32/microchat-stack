@@ -1,0 +1,72 @@
+version: '3.9'
+
+services:
+    traefik:
+        image: traefik:3.5
+        ports:
+            - '${HTTP_PORT}:80'
+            - '${HTTPS_PORT}:443'
+        command:
+            - '--providers.docker.exposedbydefault=false'
+            - '--providers.swarm=true'
+
+            - '--entrypoints.web.address=:${HTTP_PORT}'
+            - '--entrypoints.websecure.address=:${HTTPS_PORT}'
+
+            - '--api.dashboard=${TRAEFIK_DASHBOARD_ENABLED}'
+            - '--api.insecure=${TRAEFIK_DASHBOARD_INSECURE}'
+
+            - '--certificatesresolvers.letsencrypt.acme.httpchallenge=${HTTPS_ENABLED}'
+            - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+            - '--certificatesresolvers.letsencrypt.acme.email=${LETSENCRYPT_EMAIL}'
+            - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+        volumes:
+            - /var/run/docker.sock:/var/run/docker.sock:ro
+            - microchat-traefik_letsencrypt:/letsencrypt
+        networks:
+            - microchat-public_net
+        configs:
+            - source: microchat-traefik_auth
+              target: .basic-auth
+              uid: '0'
+              gid: '0'
+              mode: 0440
+        deploy:
+            labels:
+                - 'traefik.enable=true'
+                - 'traefik.http.routers.traefik.rule=Host(`${TRAEFIK_DASHBOARD_DOMAIN}`)'
+                - 'traefik.http.routers.traefik.service=api@internal'
+                - 'traefik.http.routers.traefik.middlewares=auth'
+                - 'traefik.http.middlewares.auth.basicauth.usersfile=.basic-auth'
+                - 'traefik.http.services.traefik.loadbalancer.server.port=8080'
+
+    whoami:
+        image: traefik/whoami
+
+        deploy:
+            labels:
+                - 'traefik.enable=true'
+                - 'traefik.http.routers.whoami.rule=Host(`${WHOAMI_DOMAIN}`)'
+                - 'traefik.http.routers.whoami.entrypoints=web'
+                - 'traefik.http.routers.whoami.service=whoami-service'
+                - 'traefik.http.routers.whoami-secure.rule=Host(`${WHOAMI_DOMAIN}`)'
+                - 'traefik.http.routers.whoami-secure.entrypoints=websecure'
+                - 'traefik.http.routers.whoami-secure.tls=${HTTPS_ENABLED}'
+                - 'traefik.http.routers.whoami-secure.tls.certresolver=letsencrypt'
+                - 'traefik.http.routers.whoami-secure.service=whoami-service'
+                - 'traefik.http.services.whoami-service.loadbalancer.server.port=${WHOAMI_PORT}'
+
+        networks:
+            - microchat-public_net
+
+configs:
+    microchat-traefik_auth:
+        external: true
+
+volumes:
+    microchat-traefik_letsencrypt:
+        external: true
+
+networks:
+    microchat-public_net:
+        external: true
