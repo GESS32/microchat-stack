@@ -1,0 +1,9 @@
+auth:
+    type: LOGIN_FORM
+
+spring:
+    # Note: store the username and password in docker configs insecure in production environment.
+    security:
+        user:
+            name: admin
+            password: admin

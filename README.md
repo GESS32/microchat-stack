@@ -1,4 +1,4 @@
 # microchat-stack
 
 ## Docs
-* [Deployment](docs/deployment.md)
+* [Quick Start](docs/quick-start.md)
