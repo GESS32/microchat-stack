@@ -1,8 +1,8 @@
-# Quick Start Guide
+# Deployment Guide
 
 ---
 
-## Local Development Preparation
+## Local Machine Preparation
 For local developing you may don't edit files created by templates.  
 Add following hosts entries to your `/etc/hosts` file:
 ```text
