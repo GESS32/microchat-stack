@@ -1,7 +1,5 @@
 # microchat-stack
 
----
-
 > **Note:** repository is in the early stages of development.
 
 This repository is a **chat template** built on a microservices architecture.  
