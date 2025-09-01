@@ -28,7 +28,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first
@@ -72,7 +72,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first
@@ -116,7 +116,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first
@@ -164,7 +164,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first
@@ -216,7 +216,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first
@@ -268,7 +268,7 @@ services:
             replicas: 1
             placement:
                 constraints:
-                    - node.labels.role == microchat-kafka
+                    - node.labels.role == microchat
                 max_replicas_per_node: 1
             update_config:
                 order: start-first

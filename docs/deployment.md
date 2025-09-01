@@ -86,7 +86,7 @@ docker config create microchat-traefik_tls tls.yml
 12. Add kafka label to a docker swarm node:
      ```bash
      docker node ls # to see the list of nodes
-     docker node update --label-add microchat.kafka=true <HOSTNAME>
+     docker node update --label-add role=microchat <HOSTNAME>
      docker node inspect <HOSTNAME> --format '{{json .Spec.Labels}}' # to check the label
      ```
 
