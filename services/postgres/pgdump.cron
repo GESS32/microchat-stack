@@ -1,0 +1,1 @@
+0 1 0 * * D=$(date +%F); pg_dump -U microchat -h postgres -d microchat -F c -f /backups/${D}.dump && find /backups -type f -mtime +14 -delete
