@@ -1,0 +1,82 @@
+services:
+    postgres:
+        ports:
+            - "2223:5432"
+        image: postgres:17-alpine
+        environment:
+            POSTGRES_DB: microchat
+            POSTGRES_USER: microchat
+            POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
+            PGDATA: /var/lib/postgresql/data/pgdata
+            TZ: UTC
+        secrets:
+            - source: microchat-postgres_password
+              target: postgres_password
+        volumes:
+            - microchat-postgres_data:/var/lib/postgresql/data
+        networks:
+            - microchat-backoffice
+        stop_grace_period: 60s
+        ulimits:
+            nofile:
+                soft: 65536
+                hard: 65536
+        deploy:
+            replicas: 1
+            placement:
+                constraints:
+                    - node.labels.role == microchat
+            resources:
+                limits:
+                    cpus: "2.0"
+                    memory: 4G
+                reservations:
+                    cpus: "0.5"
+                    memory: 1024M
+            restart_policy:
+                condition: on-failure
+                delay: 5s
+                max_attempts: 10
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U microchat -d microchat -h 127.0.0.1"]
+            interval: 10s
+            timeout: 3s
+            retries: 10
+
+    pgdump:
+        image: postgres:17-alpine
+        environment:
+            PGPASSWORD_FILE: /run/secrets/postgres_password
+            TZ: UTC
+        secrets:
+            - source: microchat-postgres_password
+              target: postgres_password
+        volumes:
+            - microchat-postgres_backups:/backups
+        networks:
+            - microchat-backoffice
+        configs:
+            - source: microchat-pgdump_cron
+              target: /etc/crontabs/root
+        command: ["crond", "-f", "-L", "/dev/stdout"]
+        deploy:
+            placement:
+                constraints:
+                    - node.labels.role == microchat
+configs:
+    microchat-pgdump_cron:
+        file: ./pgdump.cron
+
+secrets:
+    microchat-postgres_password:
+        external: true
+
+volumes:
+    microchat-postgres_data:
+        driver: local
+    microchat-postgres_backups:
+        driver: local
+
+networks:
+    microchat-backoffice:
+        external: true
