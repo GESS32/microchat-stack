@@ -1,0 +1,57 @@
+services:
+#    app:
+    
+    rabbitmq:
+        image: rabbitmq:3.13-management
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+            labels:
+                - traefik.enable=true
+                - traefik.swarm.network=microchat-public_net
+                - traefik.http.routers.rabbit.rule=Host(`identify-rabbit.microchat`)
+                - traefik.http.routers.rabbit.entrypoints=websecure
+                - traefik.http.routers.rabbit.tls.certresolver=le
+                - traefik.http.services.rabbit.loadbalancer.server.port=15672
+        environment:
+            RABBITMQ_DEFAULT_USER_FILE: /run/secrets/microchat-identify_rabbitmq_user
+            RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/microchat-identify_rabbitmq_pass
+            RABBITMQ_ERLANG_COOKIE_FILE: /run/secrets/microchat-identify_rabbitmq_cookie
+            RABBITMQ_LOAD_DEFINITIONS: /etc/rabbitmq/definitions.json
+        networks:
+            - microchat-public_net
+        volumes:
+            - microchat-identify_rabbitmq_data:/var/lib/rabbitmq
+        secrets:
+            - microchat-identify_rabbitmq_user
+            - microchat-identify_rabbitmq_pass
+            - microchat-identify_rabbitmq_cookie
+        configs:
+            - source: microchat-identify_rabbitmq_definitions
+              target: /etc/rabbitmq/definitions.json
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+            interval: 20s
+            timeout: 5s
+            retries: 6
+
+networks:
+    microchat-public_net:
+        external: true
+
+volumes:
+    microchat-identify_rabbitmq_data:
+        driver: local
+
+secrets:
+    microchat-identify_rabbitmq_user:
+        external: true
+    microchat-identify_rabbitmq_pass:
+        external: true
+    microchat-identify_rabbitmq_cookie:
+        external: true
+
+configs:
+    microchat-identify_rabbitmq_definitions:
+        file: ./rabbitmq/definitions.json
