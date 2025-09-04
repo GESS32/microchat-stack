@@ -8,6 +8,9 @@ services:
             - --providers.swarm=true
             - --providers.swarm.exposedbydefault=false
             - --providers.swarm.network=microchat-public_net
+#            - --providers.docker=true # Uncomment if you want to use docker compose services
+#            - --providers.docker.exposedbydefault=false # Uncomment if you want to use docker compose services
+#            - --providers.docker.network=microchat-public_net # Uncomment if you want to use docker compose services
             - --entrypoints.web.address=:80
             - --entrypoints.websecure.address=:443
             - --entrypoints.web.http.redirections.entryPoint.to=websecure
