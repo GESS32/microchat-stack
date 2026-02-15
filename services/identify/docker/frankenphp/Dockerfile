@@ -26,7 +26,8 @@ RUN set -eux; \
         zip \
         pdo_mysql \
         pdo_pgsql \
-        redis
+        redis \
+        amqp
 
 # Composer root use ok
 ENV COMPOSER_ALLOW_SUPERUSER=1

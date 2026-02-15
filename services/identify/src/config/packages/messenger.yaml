@@ -1,0 +1,61 @@
+framework:
+    messenger:
+        default_bus: command.bus
+        failure_transport: failed
+
+        serializer:
+            default_serializer: messenger.transport.symfony_serializer
+            symfony_serializer:
+                format: json
+                context: {}
+        buses:
+            command.bus:
+                middleware:
+                    - validation
+                    - App\Infrastructure\Bus\Middleware\DoctrineTransactionMiddleware
+                    - App\Infrastructure\Bus\Middleware\IdempotencyMiddleware
+            query.bus: ~
+#            event.bus:
+#                middleware:
+#                    - send_message
+#                    - handle_message
+        transports:
+            sync: 'sync://'
+            async:
+                dsn: '%env(RABBITMQ_DSN)%'
+                options:
+                    auto_setup: true
+                    prefetch_count: 10
+                    exchange:
+                        name: app
+                        type: topic
+                        durable: true
+                    queues:
+                        app_async:
+                            binding_keys: ['app.#']
+                            durable: true
+                retry_strategy:
+                    max_retries: 5
+                    delay: 1000 # 1s
+                    multiplier: 2
+                    max_delay: 60000 # 60s
+
+            failed:
+                dsn: '%env(RABBITMQ_DSN)%'
+                options:
+                    auto_setup: true
+                    exchange:
+                        name: app.failed
+                        type: direct
+                    queues:
+                        app_failed: ~
+        routing:
+            'App\Domain\User\Event\EventInterface': sync
+
+# when@test:
+#    framework:
+#        messenger:
+#            transports:
+#                # replace with your transport name here (e.g., my_transport: 'in-memory://')
+#                # For more Messenger testing tools, see https://github.com/zenstruck/messenger-test
+#                async: 'in-memory://'

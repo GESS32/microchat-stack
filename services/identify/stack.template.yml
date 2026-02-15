@@ -1,8 +1,10 @@
 services:
 #    app:
-    
+
     rabbitmq:
-        image: rabbitmq:3.13-management
+        image: rabbitmq:4.1.4-management
+        environment:
+            RABBITMQ_ERLANG_COOKIE_FILE: /run/secrets/microchat-identify_rabbitmq_cookie
         deploy:
             replicas: 1
             restart_policy:
@@ -10,26 +12,21 @@ services:
             labels:
                 - traefik.enable=true
                 - traefik.swarm.network=microchat-public_net
-                - traefik.http.routers.rabbit.rule=Host(`identify-rabbit.microchat`)
-                - traefik.http.routers.rabbit.entrypoints=websecure
-                - traefik.http.routers.rabbit.tls.certresolver=le
-                - traefik.http.services.rabbit.loadbalancer.server.port=15672
-        environment:
-            RABBITMQ_DEFAULT_USER_FILE: /run/secrets/microchat-identify_rabbitmq_user
-            RABBITMQ_DEFAULT_PASS_FILE: /run/secrets/microchat-identify_rabbitmq_pass
-            RABBITMQ_ERLANG_COOKIE_FILE: /run/secrets/microchat-identify_rabbitmq_cookie
-            RABBITMQ_LOAD_DEFINITIONS: /etc/rabbitmq/definitions.json
+                - traefik.http.routers.identify-rabbit.rule=Host(`identify-rabbit.microchat`)
+                - traefik.http.routers.identify-rabbit.entrypoints=websecure
+                - traefik.http.routers.identify-rabbit.tls=true
+                - traefik.http.services.identify-rabbit-svc.loadbalancer.server.port=15672
         networks:
             - microchat-public_net
         volumes:
             - microchat-identify_rabbitmq_data:/var/lib/rabbitmq
-        secrets:
-            - microchat-identify_rabbitmq_user
-            - microchat-identify_rabbitmq_pass
-            - microchat-identify_rabbitmq_cookie
         configs:
-            - source: microchat-identify_rabbitmq_definitions
+            - source: microchat-identify_rabbitmq_conf
+              target: /etc/rabbitmq/rabbitmq.conf
+            - source: microchat-identify_rabbitmq_def
               target: /etc/rabbitmq/definitions.json
+        secrets:
+            - microchat-identify_rabbitmq_cookie
         healthcheck:
             test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
             interval: 20s
@@ -45,13 +42,11 @@ volumes:
         driver: local
 
 secrets:
-    microchat-identify_rabbitmq_user:
-        external: true
-    microchat-identify_rabbitmq_pass:
-        external: true
     microchat-identify_rabbitmq_cookie:
         external: true
 
 configs:
-    microchat-identify_rabbitmq_definitions:
+    microchat-identify_rabbitmq_conf:
+        file: ./rabbitmq/rabbitmq.conf
+    microchat-identify_rabbitmq_def:
         file: ./rabbitmq/definitions.json

@@ -10,6 +10,8 @@ Add following hosts entries to your `/etc/hosts` file:
 127.0.0.1 traefik.microchat
 127.0.0.1 whoami.microchat
 127.0.0.1 kafka-ui.microchat
+127.0.0.1 identify.microchat
+127.0.0.1 identify-rabbit.microchat
 127.0.0.1 microchat.com
 ```
 
