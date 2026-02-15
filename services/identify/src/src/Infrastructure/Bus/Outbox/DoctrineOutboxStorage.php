@@ -63,16 +63,16 @@ final readonly class DoctrineOutboxStorage implements OutboxStorageInterface
 
         $this->entityManager->flush();
 
-        return array_map(fn(OutboxMessageMapping $m) => new OutboxMessageCommand(
-            id: $m->id,
-            channel: $m->channel,
-            eventName: $m->eventName,
-            aggregateId: $m->aggregateId,
-            payload: $m->payload,
-            headers: $m->headers,
-            occurredAt: $m->occurredAt,
-            availableAt: $m->availableAt,
-            partitionKey: $m->partitionKey,
+        return array_map(fn(OutboxMessageMapping $map) => new OutboxMessageCommand(
+            id: $map->getId(),
+            channel: $map->channel,
+            eventName: $map->eventName,
+            aggregateId: $map->aggregateId,
+            payload: $map->payload,
+            headers: $map->headers,
+            occurredAt: $map->occurredAt,
+            availableAt: $map->availableAt,
+            partitionKey: $map->partitionKey,
         ), $messages);
     }
 
