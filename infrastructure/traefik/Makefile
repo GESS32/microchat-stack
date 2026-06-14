@@ -24,23 +24,23 @@ print:
 
 .PHONY: networks
 networks:
-	- docker network create --driver overlay --attachable $(NETWORK)
+	@docker network inspect $(NETWORK) >/dev/null 2>&1 || { docker network create --driver overlay --attachable $(NETWORK) >/dev/null; echo "Created Docker network: $(NETWORK)"; }
 
 .PHONY: volumes
 volumes:
-	- docker volume create $(VOLUME)
+	@docker volume inspect $(VOLUME) >/dev/null 2>&1 || { docker volume create $(VOLUME) >/dev/null; echo "Created Docker volume: $(VOLUME)"; }
 
 .PHONY: up
 up:
-	- docker stack deploy $(STACK) --with-registry-auth --compose-file=$(STACK_FILE)
+	@docker stack deploy $(STACK) --with-registry-auth --compose-file=$(STACK_FILE)
 
 .PHONY: down
 down:
-	- docker stack rm $(STACK)
+	- @docker stack rm $(STACK)
 
 .PHONY: ps
 ps:
-	- docker stack services $(STACK)
+	@docker stack services $(STACK)
 
 .PHONY: logs
 logs:

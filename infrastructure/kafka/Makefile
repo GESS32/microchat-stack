@@ -23,17 +23,17 @@ help:
 
 .PHONY: networks
 networks:
-	- docker network create --driver overlay --attachable $(NET_BACKOFFICE) 2>/dev/null || echo "Network $(NET_BACKOFFICE) already exists."
-	- docker network create --driver overlay --attachable $(NET_PUBLIC) 2>/dev/null || echo "Network $(NET_PUBLIC) already exists."
+	@docker network inspect $(NET_BACKOFFICE) >/dev/null 2>&1 || { docker network create --driver overlay --attachable $(NET_BACKOFFICE) >/dev/null; echo "Created Docker network: $(NET_BACKOFFICE)"; }
+	@docker network inspect $(NET_PUBLIC) >/dev/null 2>&1 || { docker network create --driver overlay --attachable $(NET_PUBLIC) >/dev/null; echo "Created Docker network: $(NET_PUBLIC)"; }
 
 .PHONY: volumes
 volumes:
-	- docker volume create $(VOL_CTRL_0)
-	- docker volume create $(VOL_CTRL_1)
-	- docker volume create $(VOL_CTRL_2)
-	- docker volume create $(VOL_BROKER_0)
-	- docker volume create $(VOL_BROKER_1)
-	- docker volume create $(VOL_BROKER_2)
+	@docker volume inspect $(VOL_CTRL_0) >/dev/null 2>&1 || { docker volume create $(VOL_CTRL_0) >/dev/null; echo "Created Docker volume: $(VOL_CTRL_0)"; }
+	@docker volume inspect $(VOL_CTRL_1) >/dev/null 2>&1 || { docker volume create $(VOL_CTRL_1) >/dev/null; echo "Created Docker volume: $(VOL_CTRL_1)"; }
+	@docker volume inspect $(VOL_CTRL_2) >/dev/null 2>&1 || { docker volume create $(VOL_CTRL_2) >/dev/null; echo "Created Docker volume: $(VOL_CTRL_2)"; }
+	@docker volume inspect $(VOL_BROKER_0) >/dev/null 2>&1 || { docker volume create $(VOL_BROKER_0) >/dev/null; echo "Created Docker volume: $(VOL_BROKER_0)"; }
+	@docker volume inspect $(VOL_BROKER_1) >/dev/null 2>&1 || { docker volume create $(VOL_BROKER_1) >/dev/null; echo "Created Docker volume: $(VOL_BROKER_1)"; }
+	@docker volume inspect $(VOL_BROKER_2) >/dev/null 2>&1 || { docker volume create $(VOL_BROKER_2) >/dev/null; echo "Created Docker volume: $(VOL_BROKER_2)"; }
 
 .PHONY: rm-volumes
 rm-volumes:
@@ -52,15 +52,15 @@ labels:
 
 .PHONY: up
 up:
-	- docker stack deploy $(STACK) --with-registry-auth --compose-file=$(STACK_FILE)
+	@docker stack deploy $(STACK) --with-registry-auth --compose-file=$(STACK_FILE)
 
 .PHONY: down
 down:
-	- docker stack rm $(STACK)
+	- @docker stack rm $(STACK)
 
 .PHONY: ps
 ps:
-	- docker stack services $(STACK)
+	@docker stack services $(STACK)
 
 .PHONY: logs
 logs:
