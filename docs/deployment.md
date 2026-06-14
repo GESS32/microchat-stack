@@ -27,6 +27,25 @@ docker config create microchat-traefik_tls tls.yml
 ---
 
 ## Steps to Deploy
+
+### Automated Install
+
+After `stack.yml` files and local config files are prepared, the root Makefile can create Swarm configs/secrets, apply node labels, create networks/volumes, and deploy all stacks:
+
+```bash
+make install TRAEFIK_BASIC_AUTH_USER=admin TRAEFIK_BASIC_AUTH_PASSWORD='REPLACE_WITH_PASSWORD'
+```
+
+To remove deployed stacks and Swarm configs/secrets while preserving Docker volumes:
+
+```bash
+make uninstall
+```
+
+Use `make preflight` to check required Swarm state, configs, secrets, labels, and stack files without deploying.
+
+### Manual Deployment
+
 1. Init the Docker Swarm cluster if not already done:
     ```bash
     docker swarm init

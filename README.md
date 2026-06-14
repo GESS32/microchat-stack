@@ -29,3 +29,4 @@ This is not part of the current roadmap but is considered as a potential next st
 
 ## Docs
 * [Deployment](docs/deployment.md)
+* [Kubernetes Code Generator Roadmap](docs/k8s-codegen-roadmap.md)
