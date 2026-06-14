@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Interface\Controller;
 
-use App\Application\Register\RegisterUserCommand;
 use App\Domain\Bus\Command\CommandBusInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,21 +29,7 @@ class RegisterUserController extends AbstractController
     ): JsonResponse {
         $idempotencyKey = $http->headers->get('Idempotency-Key') ?: null;
 
-        //@TODO:: add normalizer
-        $email = trim($request->email);
-        $nickname = trim($request->nickname);
-        $firstName = trim($request->firstName);
-        $lastName = $request->lastName === null ?: trim($request->lastName);
-        $plainPass = $request->plainPassword;
-
-        $this->commandBus->dispatch(new RegisterUserCommand(
-            email: $email,
-            nickname: $nickname,
-            plainPassword: $plainPass,
-            firstName: $firstName,
-            lastName: $lastName,
-            idempotencyKey: $idempotencyKey,
-        ));
+        $this->commandBus->dispatch($request->toCommand($idempotencyKey));
 
         return new JsonResponse(['message' => 'User accepted for registration'], Response::HTTP_ACCEPTED);
     }
